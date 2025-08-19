@@ -1,18 +1,25 @@
 import React from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import schema from "./validation";
+import { Link, useNavigate } from "react-router-dom";
+import validateschem from "./verif";
+import axios from "axios";
+import { FcGoogle } from "react-icons/fc";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function Connexion() {
   const [infos, setInfos] = useState({
     email: "",
     password: "",
   });
-  const [erreur, setErreur] = useState("");
+  const [erreur, setErreur] = useState({});
   const [afficher, setAfficher] = useState(false);
 
   const Afficher = (e) => {
     setAfficher(e.target.checked);
   };
+
+  const navigate = useNavigate();
 
   const Valeur = (e) => {
     setInfos({ ...infos, [e.target.name]: e.target.value });
@@ -22,19 +29,76 @@ function Connexion() {
     e.preventDefault();
 
     try {
-      await schema.validate(infos,{abortEarly: false} )
-      console.log("Connexion réussie", infos);
+      await validateschem.validate(infos, { abortEarly: false });
+
+      var loadingToast = toast.loading("Connexion en cours...");
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/login",
+        infos
+      );
+
+      const serverMessage = response.data.message;
+
+      toast.update(loadingToast, {
+        render: `✅ ${serverMessage}`,
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+
+      if (response.data.success) {
+        // Stocker le token
+        localStorage.setItem("token", response.data.access_token);
+
+        // Rediriger selon le département
+        const departement = response.data.user.departement;
+
+        switch (departement) {
+          case "Informatique":
+            navigate("/departement/informatique");
+            break;
+          case "Comptabilité":
+            navigate("/departement/comptabilite");
+            break;
+          case "Ressources humaines":
+            navigate("/departement/rh");
+            break;
+          default:
+            navigate("/formulaire");
+        }
+      }
 
       setInfos({
         email: "",
         password: "",
       });
+      setErreur({});
     } catch (error) {
-      const validationErrors = {};
-      error.inner.forEach((err) => {
-        validationErrors[err.path] = err.message;
-      });
-      setErreur(validationErrors);
+      if (loadingToast) {
+        toast.dismiss(loadingToast);
+      }
+
+      if (error.name === "ValidationError") {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err.message;
+        });
+        setErreur(validationErrors);
+      } else if (
+        error.response.status === 422 ||
+        error.response.status === 401 || error.response.status===404
+      ) {
+        const serverErrorMessage = error.response.data.message;
+        toast.error(`❌ ${serverErrorMessage}`);
+      } else if (error.response?.status === 500) {
+        const serverErrorMessage = error.response.data.message;
+
+        toast.error(`❌ ${serverErrorMessage}`);
+      } else {
+        const sms = "La requette a expirée veuillez réessayer";
+        toast.error(`❌ ${sms}`);
+      }
     }
   };
 
@@ -48,7 +112,7 @@ function Connexion() {
             </h1>
           </div>
 
-          <div onSubmit={connecter} className="space-y-6">
+          <form onSubmit={connecter} className="space-y-6">
             <div>
               <label
                 htmlFor="email"
@@ -63,7 +127,9 @@ function Connexion() {
                 placeholder="Entrez votre email"
                 value={infos.email}
                 onChange={Valeur}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 placeholder-gray-400 hover:border-gray-400"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 placeholder-gray-400 hover:border-gray-400 ${
+                  erreur.email ? "border-red-500 bg-red-50" : "border-gray-300"
+                }`}
               />
               {erreur.email && (
                 <div className="flex items-center mt-2">
@@ -99,7 +165,11 @@ function Connexion() {
                 value={infos.password}
                 placeholder="Entrez votre mot de passe"
                 onChange={Valeur}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 placeholder-gray-400 hover:border-gray-400"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 placeholder-gray-400 hover:border-gray-400 ${
+                  erreur.password
+                    ? "border-red-500 bg-red-50"
+                    : "border-gray-300"
+                }`}
               />
               {erreur.password && (
                 <div className="flex items-center mt-2">
@@ -135,6 +205,7 @@ function Connexion() {
               </div>
 
               <Link
+                to={"/mot_de_passe_oubli"}
                 type="button"
                 className="text-sm text-purple-600 hover:text-purple-700 font-semibold underline transition duration-200"
               >
@@ -144,12 +215,11 @@ function Connexion() {
 
             <button
               type="submit"
-              onClick={connecter}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transform hover:scale-[1.02] transition duration-200 shadow-lg"
             >
               Se connecter
             </button>
-          </div>
+          </form>
 
           <div className="mt-6 text-center">
             <p className="text-gray-600">
@@ -161,9 +231,29 @@ function Connexion() {
                 Créer un compte
               </Link>
             </p>
+
+            <Link className="flex items-center gap-2 border border-gray-300 py-2 px-4 rounded-md hover:bg-gray-100 transition">
+              <FcGoogle className="text-xl" />
+              <span className="text-sm font-medium">
+                Se connecter avec Google
+              </span>
+            </Link>
           </div>
         </div>
       </div>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 }
