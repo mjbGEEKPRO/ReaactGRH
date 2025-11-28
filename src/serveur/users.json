@@ -1,0 +1,15 @@
+{
+  "users": [
+    {
+      "id": 6,
+      "nom": "mba",
+      "prenom": "benji",
+      "email": "jeandupont@gmail.com",
+      "telephone": "674781991",
+      "statut": true,
+      "role": "Secrétaire",
+      "role_id": 1,
+      "departement": "Ressources Humaines"
+    }
+  ]
+}
