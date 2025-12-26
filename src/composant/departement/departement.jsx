@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import api from "../../utils/api";
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -133,18 +134,13 @@ function DepartementPosteCreate({ isOpen, onClose }) {
     setLoading(true);
 
     try {
-      // ENDPOINT REQUIS: POST /api/departements
-      // Body: { nom: string, postes: string[] }
-      const response = await fetch("/api/departements", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nom: state.nomDepartement,
-          postes: state.postes.filter((p) => p.trim()),
-        }),
+      // Utilisation de votre instance API configurée
+      const response = await api.post("/api/departements", {
+        nom: state.nomDepartement,
+        postes: state.postes.filter(p => p.trim())
       });
 
-      const data = await response.json();
+      const data = await response.data;
 
       if (data.success) {
         toast.success(

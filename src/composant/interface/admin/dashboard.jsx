@@ -1,6 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { Shield, RefreshCw, Users, UserCheck, LogIn, AlertTriangle, MonitorPlay, Lock, TrendingUp, PieChart, FileText, Clock, User, Globe, CheckCircle, XCircle, AlertCircle, ChevronRight } from "lucide-react";
 import api from "../../../utils/api";
+
+import {
+  Shield,
+  RefreshCw,
+  Users,
+  UserCheck,
+  LogIn,
+  AlertTriangle,
+  MonitorPlay,
+  Lock,
+  TrendingUp,
+  PieChart,
+  FileText,
+  Clock,
+  User,
+  Globe,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  ChevronRight,
+} from "lucide-react";
+
 const SecurityDashboard = () => {
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -8,9 +29,9 @@ const SecurityDashboard = () => {
     failedLogins: 0,
     successfulLogins: 0,
     activeSessions: 0,
-    blockedUsers: 0
+    blockedUsers: 0,
   });
-  
+
   const [loginActivity, setLoginActivity] = useState([]);
   const [roleDistribution, setRoleDistribution] = useState([]);
   const [recentLogs, setRecentLogs] = useState([]);
@@ -19,7 +40,6 @@ const SecurityDashboard = () => {
 
   useEffect(() => {
     loadDashboardData();
-    // Actualiser toutes les 30 secondes
     const interval = setInterval(loadDashboardData, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -27,16 +47,17 @@ const SecurityDashboard = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      
-      // ENDPOINT REQUIS: GET /api/security/dashboard
+
+      // Simuler des données pour le développement
+      // Remplacez par: const res = await api.get("/api/dashboard");
       const res = await api.get("/api/dashboard");
-      
+      console.log("donner ", res.data);
       setStats(res.data.stats);
       setLoginActivity(res.data.loginActivity);
       setRoleDistribution(res.data.roleDistribution);
       setRecentLogs(res.data.recentLogs);
       setSecurityAlerts(res.data.securityAlerts);
-      
+
       setLoading(false);
     } catch (error) {
       console.error("Erreur chargement dashboard:", error);
@@ -45,27 +66,44 @@ const SecurityDashboard = () => {
   };
 
   const getAlertIcon = (severity) => {
-    switch(severity) {
-      case 'critical': return <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />;
-      case 'warning': return <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />;
-      case 'info': return <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />;
-      default: return <AlertCircle className="w-5 h-5 text-gray-600 dark:text-gray-400" />;
+    switch (severity) {
+      case "critical":
+        return (
+          <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+        );
+      case "warning":
+        return (
+          <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+        );
+      case "info":
+        return (
+          <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+        );
+      default:
+        return (
+          <AlertCircle className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        );
     }
   };
 
   const getAlertColor = (severity) => {
-    switch(severity) {
-      case 'critical': return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300';
-      case 'warning': return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300';
-      case 'info': return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300';
-      default: return 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300';
+    switch (severity) {
+      case "critical":
+        return "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300";
+      case "warning":
+        return "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300";
+      case "info":
+        return "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300";
+      default:
+        return "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300";
     }
   };
 
-  // Mini graphique simple avec barres
   const SimpleBarChart = ({ data }) => {
-    const maxValue = Math.max(...data.map(d => Math.max(d.success, d.failed)));
-    
+    const maxValue = Math.max(
+      ...data.map((d) => Math.max(d.success, d.failed))
+    );
+
     return (
       <div className="space-y-3">
         {data.map((item, index) => (
@@ -75,12 +113,12 @@ const SecurityDashboard = () => {
               <span className="font-medium">{item.success + item.failed}</span>
             </div>
             <div className="flex gap-1 h-8">
-              <div 
+              <div
                 className="bg-green-500 dark:bg-green-600 rounded transition-all hover:opacity-80"
                 style={{ width: `${(item.success / maxValue) * 100}%` }}
                 title={`Réussies: ${item.success}`}
               />
-              <div 
+              <div
                 className="bg-red-500 dark:bg-red-600 rounded transition-all hover:opacity-80"
                 style={{ width: `${(item.failed / maxValue) * 100}%` }}
                 title={`Échouées: ${item.failed}`}
@@ -102,42 +140,55 @@ const SecurityDashboard = () => {
     );
   };
 
-  // Graphique circulaire simple
   const SimplePieChart = ({ data }) => {
     const total = data.reduce((sum, item) => sum + item.value, 0);
-    const colors = ['#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444'];
-    
+    const colors = [
+      "#8b5cf6",
+      "#ec4899",
+      "#f59e0b",
+      "#10b981",
+      "#3b82f6",
+      "#ef4444",
+    ];
+
+    let currentOffset = 0;
+    const slices = data.map((item, index) => {
+      const percentage = (item.value / total) * 100;
+      const strokeDasharray = `${percentage} ${100 - percentage}`;
+      const strokeDashoffset = -currentOffset;
+      currentOffset += percentage;
+
+      return (
+        <circle
+          key={index}
+          cx="50"
+          cy="50"
+          r="15.9155"
+          fill="none"
+          stroke={colors[index]}
+          strokeWidth="31.831"
+          strokeDasharray={strokeDasharray}
+          strokeDashoffset={strokeDashoffset}
+          className="transition-all hover:opacity-80"
+        />
+      );
+    });
+
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-center">
           <div className="relative w-48 h-48">
             <svg viewBox="0 0 100 100" className="transform -rotate-90">
-              {data.reduce((acc, item, index) => {
-                const percentage = (item.value / total) * 100;
-                const strokeDasharray = `${percentage} ${100 - percentage}`;
-                const strokeDashoffset = -acc;
-                
-                return [
-                  ...acc.slices,
-                  <circle
-                    key={index}
-                    cx="50"
-                    cy="50"
-                    r="15.9155"
-                    fill="none"
-                    stroke={colors[index]}
-                    strokeWidth="31.831"
-                    strokeDasharray={strokeDasharray}
-                    strokeDashoffset={strokeDashoffset}
-                    className="transition-all hover:opacity-80"
-                  />
-                ];
-              }, { slices: [], offset: 0 }).slices}
+              {slices}
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">{total}</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">Total</div>
+                <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                  {total}
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  Total
+                </div>
               </div>
             </div>
           </div>
@@ -145,8 +196,8 @@ const SecurityDashboard = () => {
         <div className="grid grid-cols-2 gap-3">
           {data.map((item, index) => (
             <div key={index} className="flex items-center gap-2">
-              <div 
-                className="w-3 h-3 rounded-full flex-shrink-0" 
+              <div
+                className="w-3 h-3 rounded-full flex-shrink-0"
                 style={{ backgroundColor: colors[index] }}
               />
               <div className="flex-1 min-w-0">
@@ -169,7 +220,9 @@ const SecurityDashboard = () => {
       <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-purple-600 dark:border-purple-400 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Chargement du dashboard...</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Chargement du dashboard...
+          </p>
         </div>
       </div>
     );
@@ -190,7 +243,7 @@ const SecurityDashboard = () => {
                 Monitoring en temps réel de la sécurité du système
               </p>
             </div>
-            <button 
+            <button
               onClick={loadDashboardData}
               className="bg-white/20 hover:bg-white/30 dark:bg-white/10 dark:hover:bg-white/20 px-6 py-3 rounded-xl transition-all flex items-center gap-2 backdrop-blur-sm"
             >
@@ -209,10 +262,16 @@ const SecurityDashboard = () => {
               <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl">
                 <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
-              <span className="text-sm text-gray-500 dark:text-gray-400">Total</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                Total
+              </span>
             </div>
-            <div className="text-3xl font-bold text-gray-800 dark:text-gray-100">{stats.totalUsers}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">Utilisateurs</div>
+            <div className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+              {stats.totalUsers}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Utilisateurs
+            </div>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
@@ -220,10 +279,16 @@ const SecurityDashboard = () => {
               <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-xl">
                 <UserCheck className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
-              <span className="text-sm text-gray-500 dark:text-gray-400">Actifs</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                Actifs
+              </span>
             </div>
-            <div className="text-3xl font-bold text-gray-800 dark:text-gray-100">{stats.activeUsers}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">Utilisateurs actifs</div>
+            <div className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+              {stats.activeUsers}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Utilisateurs actifs
+            </div>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
@@ -231,10 +296,16 @@ const SecurityDashboard = () => {
               <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
                 <LogIn className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
-              <span className="text-sm text-gray-500 dark:text-gray-400">24h</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                24h
+              </span>
             </div>
-            <div className="text-3xl font-bold text-gray-800 dark:text-gray-100">{stats.successfulLogins}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">Connexions réussies</div>
+            <div className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+              {stats.successfulLogins}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Connexions réussies
+            </div>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
@@ -242,10 +313,16 @@ const SecurityDashboard = () => {
               <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-xl">
                 <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
               </div>
-              <span className="text-sm text-gray-500 dark:text-gray-400">24h</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                24h
+              </span>
             </div>
-            <div className="text-3xl font-bold text-gray-800 dark:text-gray-100">{stats.failedLogins}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">Échecs connexion</div>
+            <div className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+              {stats.failedLogins}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Échecs connexion
+            </div>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
@@ -253,10 +330,16 @@ const SecurityDashboard = () => {
               <div className="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-xl">
                 <MonitorPlay className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
               </div>
-              <span className="text-sm text-gray-500 dark:text-gray-400">Actuelles</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                Actuelles
+              </span>
             </div>
-            <div className="text-3xl font-bold text-gray-800 dark:text-gray-100">{stats.activeSessions}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">Sessions actives</div>
+            <div className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+              {stats.activeSessions}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Sessions actives
+            </div>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
@@ -264,10 +347,16 @@ const SecurityDashboard = () => {
               <div className="bg-orange-100 dark:bg-orange-900/30 p-3 rounded-xl">
                 <Lock className="w-6 h-6 text-orange-600 dark:text-orange-400" />
               </div>
-              <span className="text-sm text-gray-500 dark:text-gray-400">Bloqués</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                Bloqués
+              </span>
             </div>
-            <div className="text-3xl font-bold text-gray-800 dark:text-gray-100">{stats.blockedUsers}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">Comptes bloqués</div>
+            <div className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+              {stats.blockedUsers}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Comptes bloqués
+            </div>
           </div>
         </div>
 
@@ -280,15 +369,19 @@ const SecurityDashboard = () => {
             </h2>
             <div className="space-y-3">
               {securityAlerts.map((alert, index) => (
-                <div 
+                <div
                   key={index}
-                  className={`p-4 rounded-xl border-2 ${getAlertColor(alert.severity)} flex items-start gap-3`}
+                  className={`p-4 rounded-xl border-2 ${getAlertColor(
+                    alert.severity
+                  )} flex items-start gap-3`}
                 >
                   {getAlertIcon(alert.severity)}
                   <div className="flex-1">
                     <div className="font-semibold">{alert.title}</div>
                     <div className="text-sm mt-1">{alert.message}</div>
-                    <div className="text-xs mt-2 opacity-75">{alert.timestamp}</div>
+                    <div className="text-xs mt-2 opacity-75">
+                      {alert.timestamp}
+                    </div>
                   </div>
                   <button className="text-sm underline hover:no-underline">
                     Détails
@@ -301,7 +394,6 @@ const SecurityDashboard = () => {
 
         {/* Graphiques */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Activité de connexion */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center">
               <TrendingUp className="w-6 h-6 mr-2 text-blue-600 dark:text-blue-400" />
@@ -310,7 +402,6 @@ const SecurityDashboard = () => {
             <SimpleBarChart data={loginActivity} />
           </div>
 
-          {/* Distribution des rôles */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center">
               <PieChart className="w-6 h-6 mr-2 text-purple-600 dark:text-purple-400" />
@@ -331,25 +422,30 @@ const SecurityDashboard = () => {
               <thead>
                 <tr className="border-b-2 border-gray-200 dark:border-gray-700">
                   <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
-                    <Clock className="w-4 h-4 inline mr-2" />Date/Heure
+                    <Clock className="w-4 h-4 inline mr-2" />
+                    Date/Heure
                   </th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
-                    <User className="w-4 h-4 inline mr-2" />Utilisateur
+                    <User className="w-4 h-4 inline mr-2" />
+                    Utilisateur
                   </th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
-                    <FileText className="w-4 h-4 inline mr-2" />Action
+                    <FileText className="w-4 h-4 inline mr-2" />
+                    Action
                   </th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
-                    <Globe className="w-4 h-4 inline mr-2" />IP
+                    <Globe className="w-4 h-4 inline mr-2" />
+                    IP
                   </th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
-                    <CheckCircle className="w-4 h-4 inline mr-2" />Statut
+                    <CheckCircle className="w-4 h-4 inline mr-2" />
+                    Statut
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {recentLogs.map((log, index) => (
-                  <tr 
+                  <tr
                     key={index}
                     className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
@@ -360,10 +456,16 @@ const SecurityDashboard = () => {
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700 rounded-full flex items-center justify-center">
                           <span className="text-white text-xs font-semibold">
-                            {log.user.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                            {log.user
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .slice(0, 2)}
                           </span>
                         </div>
-                        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{log.user}</span>
+                        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                          {log.user}
+                        </span>
                       </div>
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-700 dark:text-gray-300">
@@ -373,17 +475,29 @@ const SecurityDashboard = () => {
                       {log.ip}
                     </td>
                     <td className="py-4 px-4">
-                      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
-                        log.status === 'success' 
-                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800'
-                          : log.status === 'failed'
-                          ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
-                          : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800'
-                      }`}>
-                        {log.status === 'success' && <CheckCircle className="w-3 h-3" />}
-                        {log.status === 'failed' && <XCircle className="w-3 h-3" />}
-                        {log.status === 'warning' && <AlertCircle className="w-3 h-3" />}
-                        {log.status === 'success' ? 'Succès' : log.status === 'failed' ? 'Échec' : 'Avertissement'}
+                      <span
+                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
+                          log.status === "success"
+                            ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800"
+                            : log.status === "failed"
+                            ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800"
+                            : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800"
+                        }`}
+                      >
+                        {log.status === "success" && (
+                          <CheckCircle className="w-3 h-3" />
+                        )}
+                        {log.status === "failed" && (
+                          <XCircle className="w-3 h-3" />
+                        )}
+                        {log.status === "warning" && (
+                          <AlertCircle className="w-3 h-3" />
+                        )}
+                        {log.status === "success"
+                          ? "Succès"
+                          : log.status === "failed"
+                          ? "Échec"
+                          : "Avertissement"}
                       </span>
                     </td>
                   </tr>

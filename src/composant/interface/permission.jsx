@@ -455,9 +455,6 @@ const Permissions = () => {
                           Supprimer équipes
                         </button>
                       </div>
-                      <button onClick={() => setShowDepartementModal(true)}>
-                        Afficher modal
-                      </button>
                     </div>
 
                     {/* Droits actuels */}

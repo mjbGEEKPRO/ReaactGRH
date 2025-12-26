@@ -1,7 +1,7 @@
 {
   "users": [
     {
-      "id": 6,
+      "id": "6",
       "nom": "mba",
       "prenom": "benji",
       "email": "jeandupont@gmail.com",
@@ -10,6 +10,28 @@
       "role": "Secrétaire",
       "role_id": 1,
       "departement": "Ressources Humaines"
+    },
+    {
+      "id": "4",
+      "nom": "darille",
+      "prenom": "kembel",
+      "email": "issamtest@gmail.com",
+      "telephone": "674781993",
+      "statut": false,
+      "role": "Développeur",
+      "role_id": 2,
+      "departement": "Informatique"
+    },
+    {
+      "id": 4,
+      "nom": "jhon",
+      "prenom": "dou",
+      "email": "jhnodou@gmail.com",
+      "telephone": "659784356",
+      "statut": false,
+      "role": "Marketiste",
+      "role_id": 5,
+      "departement": "Marketing"
     }
   ]
 }

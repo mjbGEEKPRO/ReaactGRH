@@ -22,6 +22,7 @@ import { authUtils } from "./utils/redirectionForm";
 import { ThemeProvider } from "./contexte/contextTheme/ThemeContext";
 //import du modal de creattion des departements et des post
 import Departement_poste_Create from "./composant/departement/departement";
+import AccessRefuser from "./composant/interface/accesdenied";
 
 function App() {
   useEffect(() => {
@@ -44,6 +45,7 @@ function App() {
             <Route path="/compte" element={<ModalCompteDesactive />} />
             <Route path="/theme" element={<DarkThemeDemo />} />
             <Route path="/departement" element={<Departement_poste_Create />} />
+            <Route path="/denied" element={<AccessRefuser />} />
 
             {/* Routes protégées (avec vérification de permissions) */}
             <Route path="/admin" element={<Admin />} />

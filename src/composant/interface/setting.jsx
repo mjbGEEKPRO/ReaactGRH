@@ -3,8 +3,8 @@ import { toast } from "react-toastify";
 import api from "../../utils/api";
 import { authUtils } from "../../utils/redirectionForm";
 
-const Settings = ({ user, onClose }) => {
-  const [activeSettingsTab, setActiveSettingsTab] = useState("password");
+const SettingsModal = ({ user, onClose }) => {
+  const [activeSettingsModalTab, setActiveSettingsModalTab] = useState("password");
   const [loading, setLoading] = useState(false);
 
   // États pour la modification du mot de passe
@@ -35,7 +35,7 @@ const Settings = ({ user, onClose }) => {
   });
 
   // États pour les paramètres de sécurité
-  const [securitySettings, setSecuritySettings] = useState({
+  const [securitySettingsModal, setSecuritySettingsModal] = useState({
     twoFactorAuth: false,
     loginAlerts: true,
     compte: true,
@@ -51,7 +51,7 @@ const Settings = ({ user, onClose }) => {
       const response = await api.get("/api/user-preferences");
       if (response.data.success) {
         setPreferences({ ...preferences, ...response.data.preferences });
-        setSecuritySettings({ ...securitySettings, ...response.data.security });
+        setSecuritySettingsModal({ ...securitySettingsModal, ...response.data.security });
       }
     } catch (error) {
       console.error("Erreur chargement préférences:", error);
@@ -139,11 +139,11 @@ const Settings = ({ user, onClose }) => {
 
   const handlePreferencesUpdate = async () => {
     setLoading(true);
-    console.log("compte ", securitySettings);
+    console.log("compte ", securitySettingsModal);
     try {
       const response = await api.put(`/api/preferences/${user.id}`, {
         preferences,
-        security: securitySettings,
+        security: securitySettingsModal,
       });
 
       if (response.data.success) {
@@ -158,7 +158,7 @@ const Settings = ({ user, onClose }) => {
     }
   };
 
-  const renderPasswordSettings = () => (
+  const renderPasswordSettingsModal = () => (
     <div className="space-y-6">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
@@ -355,7 +355,7 @@ const Settings = ({ user, onClose }) => {
     </div>
   );
 
-  const renderNotificationSettings = () => (
+  const renderNotificationSettingsModal = () => (
     <div className="space-y-6">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
@@ -450,7 +450,7 @@ const Settings = ({ user, onClose }) => {
     </div>
   );
 
-  const renderSecuritySettings = () => (
+  const renderSecuritySettingsModal = () => (
     <div className="space-y-6">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
@@ -480,10 +480,10 @@ const Settings = ({ user, onClose }) => {
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
-                checked={securitySettings.twoFactorAuth}
+                checked={securitySettingsModal.twoFactorAuth}
                 onChange={(e) =>
-                  setSecuritySettings({
-                    ...securitySettings,
+                  setSecuritySettingsModal({
+                    ...securitySettingsModal,
                     twoFactorAuth: e.target.checked,
                   })
                 }
@@ -491,14 +491,14 @@ const Settings = ({ user, onClose }) => {
               />
               <div
                 className={`w-11 h-6 rounded-full ${
-                  securitySettings.twoFactorAuth
+                  securitySettingsModal.twoFactorAuth
                     ? "bg-green-600"
                     : "bg-gray-300"
                 } peer-focus:ring-4 peer-focus:ring-green-200 transition-colors`}
               >
                 <div
                   className={`dot absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full transition-transform ${
-                    securitySettings.twoFactorAuth ? "translate-x-5" : ""
+                    securitySettingsModal.twoFactorAuth ? "translate-x-5" : ""
                   }`}
                 ></div>
               </div>
@@ -514,10 +514,10 @@ const Settings = ({ user, onClose }) => {
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
-                checked={securitySettings.loginAlerts}
+                checked={securitySettingsModal.loginAlerts}
                 onChange={(e) =>
-                  setSecuritySettings({
-                    ...securitySettings,
+                  setSecuritySettingsModal({
+                    ...securitySettingsModal,
                     loginAlerts: e.target.checked,
                   })
                 }
@@ -525,12 +525,12 @@ const Settings = ({ user, onClose }) => {
               />
               <div
                 className={`w-11 h-6 rounded-full ${
-                  securitySettings.loginAlerts ? "bg-purple-600" : "bg-gray-300"
+                  securitySettingsModal.loginAlerts ? "bg-purple-600" : "bg-gray-300"
                 } peer-focus:ring-4 peer-focus:ring-purple-200 transition-colors`}
               >
                 <div
                   className={`dot absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full transition-transform ${
-                    securitySettings.loginAlerts ? "translate-x-5" : ""
+                    securitySettingsModal.loginAlerts ? "translate-x-5" : ""
                   }`}
                 ></div>
               </div>
@@ -711,9 +711,9 @@ const Settings = ({ user, onClose }) => {
               ].map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveSettingsTab(tab.id)}
+                  onClick={() => setActiveSettingsModalTab(tab.id)}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all ${
-                    activeSettingsTab === tab.id
+                    activeSettingsModalTab === tab.id
                       ? "bg-purple-100 text-purple-700 font-semibold shadow-sm"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
@@ -727,11 +727,11 @@ const Settings = ({ user, onClose }) => {
 
           {/* Contenu des onglets */}
           <div className="flex-1 p-8 overflow-y-auto">
-            {activeSettingsTab === "password" && renderPasswordSettings()}
-            {activeSettingsTab === "personal" && renderPersonalInfo()}
-            {activeSettingsTab === "notifications" &&
-              renderNotificationSettings()}
-            {activeSettingsTab === "security" && renderSecuritySettings()}
+            {activeSettingsModalTab === "password" && renderPasswordSettingsModal()}
+            {activeSettingsModalTab === "personal" && renderPersonalInfo()}
+            {activeSettingsModalTab === "notifications" &&
+              renderNotificationSettingsModal()}
+            {activeSettingsModalTab === "security" && renderSecuritySettingsModal()}
           </div>
         </div>
       </div>
@@ -739,4 +739,4 @@ const Settings = ({ user, onClose }) => {
   );
 };
 
-export default Settings;
+export default SettingsModal;

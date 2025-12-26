@@ -193,14 +193,14 @@ function Formulaire() {
         {/* Right Side - Form Section */}
         <div className="w-3/5 p-12 bg-white relative">
           {/* Top Right Buttons */}
-          <div className="absolute top-6 right-6 flex gap-2">
+          {/* <div className="absolute top-6 right-6 flex gap-2">
             <button className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full text-sm font-semibold hover:bg-indigo-200 transition-all">
               Employé
             </button>
             <button className="px-4 py-2 bg-indigo-600 text-white rounded-full text-sm font-semibold hover:bg-indigo-700 transition-all">
               Manager
             </button>
-          </div>
+          </div> */}
 
           <div className="mt-8">
             <h1 className="text-4xl font-bold text-gray-800 mb-2">GestionRH</h1>

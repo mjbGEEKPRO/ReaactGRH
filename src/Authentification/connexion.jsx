@@ -99,6 +99,8 @@ function Connexion() {
           error.response.status === 422 ||
           error.response.status === 403 ||
           error.response.status === 401 ||
+          error.response.status === 429 ||
+          error.response.status === 423 ||
           error.response.status === 404
         ) {
           toast.info(`❌ ${serverErrorMessage}`);
